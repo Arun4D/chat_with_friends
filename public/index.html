@@ -1,39 +1,51 @@
-<!doctype html>
-<html>
+<html ng-app="app"  ng-controller="app">
 <head>
-    <title>Socket.IO chat</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font: 13px Helvetica, Arial; }
-        form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-        form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-        form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-        #messages { list-style-type: none; margin: 0; padding: 0; }
-        #messages li { padding: 5px 10px; }
-        #messages li:nth-child(odd) { background: #eee; }
-        #messages { margin-bottom: 40px }
-    </style>
+    <title>Sending message to specific client</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<ul id="messages"></ul>
-<form action="">
-    <input id="m" autocomplete="off" /><button>Send</button>
-</form>
-<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-<script>
-    $(function () {
-        var socket = io();
-        $('form').submit(function(){
-            socket.emit('chat message', $('#m').val());
-            $('#m').val('');
-            return false;
-        });
-        socket.on('chat message', function(msg){
-            $('#messages').append($('<li>').text(msg));
-            window.scrollTo(0, document.body.scrollHeight);
-        });
-    });
-</script>
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 user-list">
+            <h2>List of Users</h2>
+            <ul class="list-group">
+                <li class="list-group-item"
+                    ng-repeat="user in userList"
+                    ng-class="{ 'active' : user.id == selectedUser}"
+                    ng-click = seletedUser(user.id);
+                    ng-style="{
+                            'cursor': user.id === socketId ? 'not-allowed' :'pointer'
+                        }"
+                >
+                    <span id='{{user.id}}' >{{ user.id === socketId ? 'You': user.userName }}</span>
+                </li>
+            </ul>
+
+        </div>
+        <div class="col-md-8 message-box">
+            <h2>Messages sent by users</h2>
+            <div class="message-container">
+                <ul class="list-group">
+                    <li class="list-group-item"
+                        ng-repeat="message in messages"
+                    >
+                        {{ message.name }} says: {{ message.msg }}
+                    </li>
+                </ul>
+                <div class="alert alert-warning" ng-show='messages.length == 0'>
+                    No messages for you.
+                </div>
+            </div>
+            <div class="message-sender">
+                <textarea class="form-control" ng-model='message' ng-keypress="sendMsg($event)"></textarea>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.min.js"></script>
+<script src="javascripts/script.js"></script>
 </html>
